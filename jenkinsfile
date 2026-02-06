@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ykyuvan346/CI-CD-for-static-website.git'
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                sh '''
+                scp -i /path/to/yk.pem -r ./html/* ubuntu@35.154.178.160:/var/www/html/
+                ssh -i /path/to/yk.pem ubuntu@35.154.178.160 "sudo systemctl restart apache2 || sudo systemctl restart httpd"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment Successful'
+        }
+        failure {
+            echo 'Deployment Failed'
+        }
+    }
+}
